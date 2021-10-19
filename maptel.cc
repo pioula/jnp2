@@ -114,7 +114,14 @@ namespace jnp1 {
     void maptel_transform(unsigned long id,
                           char const *tel_src,
                           char *tel_dst, size_t len) {
-        string src = clone_string(tel_src), dst = clone_string(tel_dst);
+        if (debug) {
+            assert(maptel.contains(id));
+            assert(is_telephone_number(tel_src));
+            assert(is_telephone_number(tel_dst));
+            
+            cerr << prefix << "maptel_transform(" << id << ", " << tel_src << ", " << tel_dst << ", " << len << ")";
+        }
+        string src = clone_string(tel_src);
         string current = src;
         unordered_map<string,string>::iterator x;
         while (maptel[id].end() != (x = maptel[id].find(current))) {
@@ -122,6 +129,10 @@ namespace jnp1 {
             if (current == src)
                 break;
         }
-        maptel[id][dst] = current;
+        if (debug) {
+            assert(len >= current.size());
+            cerr << "maptel_transform: " << src << " -> " << current;
+        }
+         strncpy(tel_dst, (char*)current.c_str(), current.size());
     }
 }
