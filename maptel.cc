@@ -47,7 +47,7 @@ namespace jnp1 {
 
 
     void maptel_erase(unsigned long id, char const *tel_src) {
-        
+        maptel[id].erase(clone_string(tel_src));
     }
 
     void maptel_transform(unsigned long id,
