@@ -54,6 +54,11 @@ namespace jnp1 {
         unordered_map<string,string> new_maptel;
         maptel[current_maptel++] = new_maptel;
 
+        if (debug) {
+            cerr << prefix << "maptel_create: new map id="
+                << current_maptel - 1 << "\n";
+        }
+
         return current_maptel - 1;
     }
 
@@ -65,18 +70,43 @@ namespace jnp1 {
         }
 
         maptel.erase(id);
+
+        if (debug) {
+            cerr << prefix << "maptel_delete: map " << id << " deleted\n";
+        }
     }
 
 
     void maptel_insert(unsigned long id,
                        char const *tel_src,
                        char const *tel_dst) {
+        if (debug) {
+            assert(maptel.contains(id));
+            assert(is_telephone_number(tel_src) &&
+                    is_telephone_number(tel_dst));
+
+            cerr << prefix << "maptel_insert(" << id << ", " << tel_src
+                << ", " << tel_dst << ")\n";
+        }
+
         maptel[id][clone_string(tel_src)] = clone_string(tel_dst);
     }
 
 
     void maptel_erase(unsigned long id, char const *tel_src) {
+        if (debug) {
+            assert(maptel.contains(id));
+            assert(is_telephone_number(tel_src));
+            assert(maptel[id].contains(tel_src));
+
+            cerr << prefix << "maptel_erase(" << id << ", " << tel_src << ")\n";
+        }
+
         maptel[id].erase(clone_string(tel_src));
+
+        if (debug) {
+            cerr << prefix << "maptel_erase: erased\n";
+        }
     }
 
     void maptel_transform(unsigned long id,
