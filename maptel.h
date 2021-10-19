@@ -5,8 +5,6 @@
     extern "C" {
 #endif
 
-#ifdef __cplusplus
-
     const size_t TEL_NUM_MAX_LEN = 22;
 
     // Tworzy słownik i zwraca liczbę naturalną będącą jego identyfikatorem.
@@ -30,6 +28,8 @@
     przez tel_dst. */
     void maptel_transform(unsigned long id, char const *tel_src, char *tel_dst, size_t len);
 
+#ifdef __cplusplus
+}
 #endif
 
 #endif //MAPTEL_H
