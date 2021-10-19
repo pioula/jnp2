@@ -8,7 +8,8 @@
 using std::vector;
 using std::string;
 using std::unordered_map;
-using namespace std;
+using std::cerr;
+using jnp1::TEL_NUM_MAX_LEN;
 
 namespace {
     #ifdef NDEBUG
