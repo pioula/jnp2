@@ -16,8 +16,8 @@ namespace {
         const bool debug = true;
     #endif
 
-    unordered_map<unsigned int, unordered_map<string, string>> maptel;
-    unsigned int current_maptel = 0;
+    unordered_map<unsigned long, unordered_map<string, string>> maptel;
+    unsigned long current_maptel = 0;
 
     string clone_string(const char *src) {
         string result = "";
