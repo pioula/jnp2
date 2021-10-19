@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include "maptel.h"
-#include <bits/stdc++.h>
 using std::vector;
 using std::string;
 using std::unordered_map;
@@ -20,11 +19,10 @@ namespace {
     unsigned long current_maptel = 0;
 
     string clone_string(const char *src) {
-        string result = "";
+        string result;
         for (size_t k = 0; src[k]; k++) {
             result.push_back(src[k]);
         }
-
         return result;
     }
 
@@ -33,7 +31,8 @@ namespace {
 namespace jnp1 {
     unsigned long maptel_create(void) {
         unordered_map<string,string> new_maptel;
-        maptel[current_maptel++] = new_maptel;
+        maptel[current_maptel] = new_maptel;
+        return current_maptel++;
     }
 
     void maptel_delete(unsigned long id) {
@@ -55,6 +54,14 @@ namespace jnp1 {
     void maptel_transform(unsigned long id,
                           char const *tel_src,
                           char *tel_dst, size_t len) {
-
+        string src = clone_string(tel_src), dst = clone_string(tel_dst);
+        string current = src;
+        unordered_map<string,string>::iterator x;
+        while (maptel[id].end() != (x = maptel[id].find(current))) {
+            current = x->second;
+            if (current == src)
+                break;
+        }
+        maptel[id][dst] = current;
     }
 }
