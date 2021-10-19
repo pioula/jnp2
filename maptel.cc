@@ -17,6 +17,7 @@ namespace {
     #endif
 
     unordered_map<unsigned int, unordered_map<string, string>> maptel;
+    unsigned int current_maptel = 0;
 
     string clone_string(const char *src) {
         string result = "";
@@ -31,7 +32,8 @@ namespace {
 
 namespace jnp1 {
     unsigned long maptel_create(void) {
-        maptel.clear();
+        unordered_map<string,string> new_maptel;
+        maptel[current_maptel++] = new_maptel;
     }
 
     void maptel_delete(unsigned long id) {
