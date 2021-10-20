@@ -1,11 +1,15 @@
 #ifndef MAPTEL_H
 #define MAPTEL_H
 
+#ifndef __cplusplus
+#include <stdlib.h>
+#endif
+
 #ifdef __cplusplus
     extern "C" {
         namespace jnp1 {
 #endif
-            constinit size_t TEL_NUM_MAX_LEN = 22;
+            const size_t TEL_NUM_MAX_LEN = 22;
 
             /* Tworzy słownik i zwraca liczbę naturalną
             będącą jego identyfikatorem. */

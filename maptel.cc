@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <string>
 #include "maptel.h"
@@ -8,6 +9,7 @@
 using std::vector;
 using std::string;
 using std::unordered_map;
+using std::unordered_set;
 using std::cerr;
 using jnp1::TEL_NUM_MAX_LEN;
 
@@ -57,7 +59,7 @@ namespace jnp1 {
         maptel[current_maptel++] = new_maptel;
 
         if (debug) {
-            cerr << prefix << "maptel_create: new map id="
+            cerr << prefix << "maptel_create: new map id = "
                 << current_maptel - 1 << "\n";
         }
 
@@ -92,6 +94,9 @@ namespace jnp1 {
         }
 
         maptel[id][clone_string(tel_src)] = clone_string(tel_dst);
+        if (debug) {
+            cerr << prefix << "maptel_insert: inserted\n";
+        }
     }
 
 
@@ -99,9 +104,14 @@ namespace jnp1 {
         if (debug) {
             assert(maptel.contains(id));
             assert(is_telephone_number(tel_src));
-            assert(maptel[id].contains(tel_src));
 
             cerr << prefix << "maptel_erase(" << id << ", " << tel_src << ")\n";
+        }
+        
+        if (!maptel[id].contains(tel_src)) {
+            if (debug)
+                cerr << prefix << "maptel_erase: nothing to erase\n";
+            return;
         }
 
         maptel[id].erase(clone_string(tel_src));
@@ -117,22 +127,28 @@ namespace jnp1 {
         if (debug) {
             assert(maptel.contains(id));
             assert(is_telephone_number(tel_src));
-            assert(is_telephone_number(tel_dst));
             
-            cerr << prefix << "maptel_transform(" << id << ", " << tel_src << ", " << tel_dst << ", " << len << ")";
+            cerr << prefix << "maptel_transform(" << id << ", " << tel_src << ", " << static_cast<void*>(tel_dst) << ", " << len << ")" << std::endl;
         }
         string src = clone_string(tel_src);
         string current = src;
+        unordered_set<string> visited;
         unordered_map<string,string>::iterator x;
         while (maptel[id].end() != (x = maptel[id].find(current))) {
-            current = x->second;
-            if (current == src)
+            if (visited.find(current) != visited.end()) {
+                current = src;
+                if (debug) {
+                    cerr << prefix << "maptel_transform: cycle detected" << std::endl;
+                }
                 break;
+            }
+            visited.insert(current);
+            current = x->second;
         }
         if (debug) {
-            assert(len >= current.size());
-            cerr << "maptel_transform: " << src << " -> " << current;
+            assert(len > current.size());
+            cerr << prefix << "maptel_transform: " << src << " -> " << current << std::endl;
         }
-         strncpy(tel_dst, (char*)current.c_str(), current.size());
+         strncpy(tel_dst, (char*)current.c_str(), current.size() + 1);
     }
 }
