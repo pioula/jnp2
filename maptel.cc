@@ -3,14 +3,15 @@
 #include <unordered_set>
 #include <vector>
 #include <string>
-#include "maptel.h"
 #include <cstring>
 #include <cassert>
+#include "maptel.h"
 using std::vector;
 using std::string;
 using std::unordered_map;
 using std::unordered_set;
 using std::cerr;
+using std::endl;
 using jnp1::TEL_NUM_MAX_LEN;
 
 namespace {
@@ -55,7 +56,7 @@ namespace {
 namespace jnp1 {
     unsigned long maptel_create(void) {
         if (debug) {
-            cerr << prefix << "maptel_create()\n";
+            cerr << prefix << "maptel_create()" << endl;
         }
 
         unordered_map<string,string> new_maptel;
@@ -63,7 +64,7 @@ namespace jnp1 {
 
         if (debug) {
             cerr << prefix << "maptel_create: new map id = "
-                << current_maptel - 1 << "\n";
+                << current_maptel - 1 << endl;
         }
 
         return current_maptel - 1;
@@ -73,13 +74,13 @@ namespace jnp1 {
         if (debug) {
             assert(maptel.find(id) != maptel.end());
 
-            cerr << prefix << "maptel_delete(" << id << ")\n";
+            cerr << prefix << "maptel_delete(" << id << ")" << endl;
         }
 
         maptel.erase(id);
 
         if (debug) {
-            cerr << prefix << "maptel_delete: map " << id << " deleted\n";
+            cerr << prefix << "maptel_delete: map " << id << " deleted" << endl;
         }
     }
 
@@ -93,12 +94,12 @@ namespace jnp1 {
                     is_telephone_number(tel_dst));
 
             cerr << prefix << "maptel_insert(" << id << ", " << tel_src
-                << ", " << tel_dst << ")\n";
+                << ", " << tel_dst << ")" << endl;
         }
 
         maptel[id][clone_string(tel_src)] = clone_string(tel_dst);
         if (debug) {
-            cerr << prefix << "maptel_insert: inserted\n";
+            cerr << prefix << "maptel_insert: inserted" << endl;
         }
     }
 
@@ -108,19 +109,20 @@ namespace jnp1 {
             assert(maptel.find(id) != maptel.end());
             assert(is_telephone_number(tel_src));
 
-            cerr << prefix << "maptel_erase(" << id << ", " << tel_src << ")\n";
+            cerr << prefix << "maptel_erase(" << id << ", " << tel_src << ")"
+                << endl;
         }
         
         if (maptel[id].find(tel_src) == maptel[id].end()) {
             if (debug)
-                cerr << prefix << "maptel_erase: nothing to erase\n";
+                cerr << prefix << "maptel_erase: nothing to erase" << endl;
             return;
         }
 
         maptel[id].erase(clone_string(tel_src));
 
         if (debug) {
-            cerr << prefix << "maptel_erase: erased\n";
+            cerr << prefix << "maptel_erase: erased" << endl;
         }
     }
 
@@ -132,27 +134,37 @@ namespace jnp1 {
             assert(is_telephone_number(tel_src));
             assert(tel_dst != NULL);
 
-            cerr << prefix << "maptel_transform(" << id << ", " << tel_src << ", " << static_cast<void*>(tel_dst) << ", " << len << ")" << std::endl;
+            cerr << prefix << "maptel_transform(" << id << ", " << tel_src
+                << ", " << static_cast<void*>(tel_dst) << ", "
+                << len << ")" << endl;
         }
+
         string src = clone_string(tel_src);
         string current = src;
         unordered_set<string> visited;
         unordered_map<string,string>::iterator x;
+
         while (maptel[id].end() != (x = maptel[id].find(current))) {
             if (visited.find(current) != visited.end()) {
                 current = src;
                 if (debug) {
-                    cerr << prefix << "maptel_transform: cycle detected" << std::endl;
+                    cerr << prefix
+                        << "maptel_transform: cycle detected" << endl;
                 }
                 break;
             }
+
             visited.insert(current);
             current = x->second;
         }
+
         if (debug) {
             assert(len > current.size());
-            cerr << prefix << "maptel_transform: " << src << " -> " << current << std::endl;
+
+            cerr << prefix << "maptel_transform: " << src << " -> "
+                << current << endl;
         }
-         strncpy(tel_dst, (char*)current.c_str(), current.size() + 1);
+
+        strncpy(tel_dst, (char*)current.c_str(), current.size() + 1);
     }
 }
