@@ -3,6 +3,8 @@
 
 #ifndef __cplusplus
 #include <stdlib.h>
+#else
+#include <cstdlib>
 #endif
 
 #ifdef __cplusplus

@@ -35,9 +35,12 @@ namespace {
     }
 
     bool is_telephone_number(char const *tel_num) {
-        size_t tel_length = strlen(tel_num);
+        if (tel_num == NULL)
+	    return false;
 
-        if (tel_length == 0 || tel_length > TEL_NUM_MAX_LEN)
+	size_t tel_length = strlen(tel_num);
+
+        if (tel_length > TEL_NUM_MAX_LEN)
             return false;
 
         for (size_t i = 0; tel_num[i]; i++) {
@@ -68,7 +71,7 @@ namespace jnp1 {
 
     void maptel_delete(unsigned long id) {
         if (debug) {
-            assert(maptel.contains(id));
+            assert(maptel.find(id) != maptel.end());
 
             cerr << prefix << "maptel_delete(" << id << ")\n";
         }
@@ -85,7 +88,7 @@ namespace jnp1 {
                        char const *tel_src,
                        char const *tel_dst) {
         if (debug) {
-            assert(maptel.contains(id));
+            assert(maptel.find(id) != maptel.end());
             assert(is_telephone_number(tel_src) &&
                     is_telephone_number(tel_dst));
 
@@ -102,13 +105,13 @@ namespace jnp1 {
 
     void maptel_erase(unsigned long id, char const *tel_src) {
         if (debug) {
-            assert(maptel.contains(id));
+            assert(maptel.find(id) != maptel.end());
             assert(is_telephone_number(tel_src));
 
             cerr << prefix << "maptel_erase(" << id << ", " << tel_src << ")\n";
         }
         
-        if (!maptel[id].contains(tel_src)) {
+        if (maptel[id].find(tel_src) == maptel[id].end()) {
             if (debug)
                 cerr << prefix << "maptel_erase: nothing to erase\n";
             return;
@@ -125,9 +128,10 @@ namespace jnp1 {
                           char const *tel_src,
                           char *tel_dst, size_t len) {
         if (debug) {
-            assert(maptel.contains(id));
+            assert(maptel.find(id) != maptel.end());
             assert(is_telephone_number(tel_src));
-            
+            assert(tel_dst != NULL);
+
             cerr << prefix << "maptel_transform(" << id << ", " << tel_src << ", " << static_cast<void*>(tel_dst) << ", " << len << ")" << std::endl;
         }
         string src = clone_string(tel_src);
