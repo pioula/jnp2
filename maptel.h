@@ -5,9 +5,8 @@
 #include <stdlib.h>
 #else
 #include <cstdlib>
-#endif
+#include <iostream>
 
-#ifdef __cplusplus
     extern "C" {
         namespace jnp1 {
 #endif

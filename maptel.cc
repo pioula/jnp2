@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cassert>
 #include "maptel.h"
+
 using std::vector;
 using std::string;
 using std::unordered_map;
@@ -14,17 +15,28 @@ using std::cerr;
 using std::endl;
 using jnp1::TEL_NUM_MAX_LEN;
 
+using maptel_t = unordered_map<unsigned long, unordered_map<string, string>>;
+
 namespace {
-    #ifdef NDEBUG
-        const bool debug = false;
-    #else
-        const bool debug = true;
-    #endif
+#ifdef NDEBUG
+    const bool debug = false;
+#else
+    const bool debug = true;
+#endif
 
-    unordered_map<unsigned long, unordered_map<string, string>> maptel;
-    unsigned long current_maptel = 0;
+    maptel_t &maptel() {
+        static maptel_t maptel;
+        return maptel;
+    }
 
-    const string prefix = "maptel: ";
+    unsigned long &current_maptel() {
+        static unsigned long current_maptel = 0;
+        return current_maptel;
+    }
+
+    string prefix(string fname) {
+        return "maptel: " + fname;
+    }
 
     string clone_string(const char *src) {
         string result;
@@ -36,12 +48,12 @@ namespace {
     }
 
     bool is_telephone_number(char const *tel_num) {
-        if (tel_num == NULL)
-	    return false;
+        if (tel_num == nullptr)
+            return false;
 
-	size_t tel_length = strlen(tel_num);
+        size_t tel_length = strlen(tel_num);
 
-        if (tel_length > TEL_NUM_MAX_LEN)
+        if (tel_length == 0 || tel_length > TEL_NUM_MAX_LEN)
             return false;
 
         for (size_t i = 0; tel_num[i]; i++) {
@@ -56,31 +68,31 @@ namespace {
 namespace jnp1 {
     unsigned long maptel_create(void) {
         if (debug) {
-            cerr << prefix << "maptel_create()" << endl;
+            cerr << prefix(__FUNCTION__) << "()" << endl;
         }
 
-        unordered_map<string,string> new_maptel;
-        maptel[current_maptel++] = new_maptel;
+        unordered_map<string, string> new_maptel;
+        maptel()[current_maptel()++] = new_maptel;
 
         if (debug) {
-            cerr << prefix << "maptel_create: new map id = "
-                << current_maptel - 1 << endl;
+            cerr << prefix(__FUNCTION__) << ": new map id = "
+                 << current_maptel() - 1 << endl;
         }
 
-        return current_maptel - 1;
+        return current_maptel() - 1;
     }
 
     void maptel_delete(unsigned long id) {
         if (debug) {
-            assert(maptel.find(id) != maptel.end());
+            assert(maptel().find(id) != maptel().end());
 
-            cerr << prefix << "maptel_delete(" << id << ")" << endl;
+            cerr << prefix(__FUNCTION__) << "(" << id << ")" << endl;
         }
 
-        maptel.erase(id);
+        maptel().erase(id);
 
         if (debug) {
-            cerr << prefix << "maptel_delete: map " << id << " deleted" << endl;
+            cerr << prefix(__FUNCTION__) << ": map " << id << " deleted" << endl;
         }
     }
 
@@ -89,40 +101,40 @@ namespace jnp1 {
                        char const *tel_src,
                        char const *tel_dst) {
         if (debug) {
-            assert(maptel.find(id) != maptel.end());
+            assert(maptel().find(id) != maptel().end());
             assert(is_telephone_number(tel_src) &&
-                    is_telephone_number(tel_dst));
+                   is_telephone_number(tel_dst));
 
-            cerr << prefix << "maptel_insert(" << id << ", " << tel_src
-                << ", " << tel_dst << ")" << endl;
+            cerr << prefix(__FUNCTION__) << "(" << id << ", " << tel_src
+                 << ", " << tel_dst << ")" << endl;
         }
 
-        maptel[id][clone_string(tel_src)] = clone_string(tel_dst);
+        maptel()[id][clone_string(tel_src)] = clone_string(tel_dst);
         if (debug) {
-            cerr << prefix << "maptel_insert: inserted" << endl;
+            cerr << prefix(__FUNCTION__) << ": inserted" << endl;
         }
     }
 
 
     void maptel_erase(unsigned long id, char const *tel_src) {
         if (debug) {
-            assert(maptel.find(id) != maptel.end());
+            assert(maptel().find(id) != maptel().end());
             assert(is_telephone_number(tel_src));
 
-            cerr << prefix << "maptel_erase(" << id << ", " << tel_src << ")"
-                << endl;
+            cerr << prefix(__FUNCTION__) << "(" << id << ", " << tel_src << ")"
+                 << endl;
         }
-        
-        if (maptel[id].find(tel_src) == maptel[id].end()) {
+
+        if (maptel()[id].find(tel_src) == maptel()[id].end()) {
             if (debug)
-                cerr << prefix << "maptel_erase: nothing to erase" << endl;
+                cerr << prefix(__FUNCTION__) << ": nothing to erase" << endl;
             return;
         }
 
-        maptel[id].erase(clone_string(tel_src));
+        maptel()[id].erase(clone_string(tel_src));
 
         if (debug) {
-            cerr << prefix << "maptel_erase: erased" << endl;
+            cerr << prefix(__FUNCTION__) << ": erased" << endl;
         }
     }
 
@@ -130,26 +142,26 @@ namespace jnp1 {
                           char const *tel_src,
                           char *tel_dst, size_t len) {
         if (debug) {
-            assert(maptel.find(id) != maptel.end());
+            assert(maptel().find(id) != maptel().end());
             assert(is_telephone_number(tel_src));
-            assert(tel_dst != NULL);
+            assert(tel_dst != nullptr);
 
-            cerr << prefix << "maptel_transform(" << id << ", " << tel_src
-                << ", " << static_cast<void*>(tel_dst) << ", "
-                << len << ")" << endl;
+            cerr << prefix(__FUNCTION__) << "(" << id << ", " << tel_src
+                 << ", " << static_cast<void *>(tel_dst) << ", "
+                 << len << ")" << endl;
         }
 
         string src = clone_string(tel_src);
         string current = src;
         unordered_set<string> visited;
-        unordered_map<string,string>::iterator x;
+        unordered_map<string, string>::iterator x;
 
-        while (maptel[id].end() != (x = maptel[id].find(current))) {
+        while (maptel()[id].end() != (x = maptel()[id].find(current))) {
             if (visited.find(current) != visited.end()) {
                 current = src;
                 if (debug) {
-                    cerr << prefix
-                        << "maptel_transform: cycle detected" << endl;
+                    cerr << prefix(__FUNCTION__)
+                         << ": cycle detected" << endl;
                 }
                 break;
             }
@@ -161,10 +173,10 @@ namespace jnp1 {
         if (debug) {
             assert(len > current.size());
 
-            cerr << prefix << "maptel_transform: " << src << " -> "
-                << current << endl;
+            cerr << prefix(__FUNCTION__) << ": " << src << " -> "
+                 << current << endl;
         }
 
-        strncpy(tel_dst, (char*)current.c_str(), current.size() + 1);
+        strncpy(tel_dst, (char *) current.c_str(), current.size() + 1);
     }
 }
