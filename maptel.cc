@@ -62,7 +62,7 @@ namespace {
                 return false;
         }
 
-        return tel_length <= TEL_NUM_MAX_LEN;
+        return tel_length <= TEL_NUM_MAX_LEN && tel_length > 0;
     }
 }
 
